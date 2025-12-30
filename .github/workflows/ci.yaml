@@ -12,8 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Checkout to directory
-        uses: cd calculator
-
       - name: Build image (runs tests)
+        working-directory: calculator
         run: docker build -t calculator:test .

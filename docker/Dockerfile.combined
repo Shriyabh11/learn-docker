@@ -1,0 +1,19 @@
+# ---------- build stage ----------
+FROM python:3.13.5 AS builder
+
+WORKDIR /build
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# ---------- runtime stage ----------
+FROM python:3.13.5-slim
+
+WORKDIR /app
+
+# persistent storage
+VOLUME /data
+
+COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
+COPY app/ .
+
+CMD ["python", "app.py"]

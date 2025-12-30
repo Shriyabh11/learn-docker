@@ -1,0 +1,15 @@
+FROM python:3.13.5-slim
+
+WORKDIR /app
+# Creates /app
+# Sets working directory
+
+COPY app/ .
+# Copy application code into image
+
+VOLUME /data
+# Declares a volume mount point
+# /data will NOT be stored in the image
+# Docker will create a volume at runtime if none is provided
+
+CMD ["python", "app.py"]

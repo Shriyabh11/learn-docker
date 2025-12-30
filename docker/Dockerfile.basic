@@ -1,0 +1,63 @@
+FROM python:3.13.5 
+
+#Docker pulls this image if it’s not already local
+# This image becomes the starting filesystem
+# It already contains:
+# Linux OS layer
+# Python runtime
+# Some standard tools
+#base image diff for every language
+#FROM is not required to match the language, but in practice it always does.
+
+
+WORKDIR /app
+
+# Creates /app if it doesn’t exist
+# Sets it as the current directory
+# Every command after runs from here
+
+
+COPY app/ . 
+
+# Left side (app/)
+# Source
+# Relative to build context
+# Build context = where you run docker build
+# So Docker can see:
+# .
+# ├── app/
+# │   └── app.py
+
+# Right side (.)
+# Destination
+# Relative to WORKDIR
+# . = /app
+# Result:
+# /app/app.py
+
+# Build context (this is subtle but important)
+# “the . meaning context”
+# When you run:
+# docker build .
+# . = build context
+# Docker can ONLY access files inside this directory
+# COPY cannot reach outside it
+# Docker can only see what you give it in the context
+
+
+CMD ["python", "app.py"]
+
+
+# # Build a Docker image
+# docker build \
+#   -f docker/Dockerfile.basic \   # Use this Dockerfile (not the default one)
+#   -t py:basic \                  # Tag (name) the image as "py:basic"
+#   .                              # Build context = current directory
+
+# # Run a container from the built image
+# docker run \
+#   -p 8000:8000 \                 # Map port 8000 (host) -> 8000 (container)
+#   py:basic                       # Image name to run
+
+
+

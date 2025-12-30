@@ -1,0 +1,51 @@
+#STAGE 1
+FROM python:3.13.5 AS builder
+# First stage
+# Named "builder" so we can refer to it later
+# Contains full Python + build tools
+
+WORKDIR /app
+# Same logic as before
+# All build actions happen inside /app
+
+COPY requirements.txt .
+# Copy only dependency file first
+# This is intentional:
+# - Dependencies change less often than source code
+# - Improves Docker layer caching
+
+RUN pip install --no-cache-dir -r requirements.txt
+# Installs dependencies
+# Creates a layer with site-packages
+# These packages live INSIDE THIS STAGE ONLY
+
+COPY app/ .
+# Copy application source code
+# If app code changes:
+# - This layer rebuilds
+# - Dependency layer stays cached
+
+#STAGE-2
+
+FROM python:3.13.5-slim
+# New image
+# Completely separate filesystem from builder
+# Smaller base image
+# No build tools
+
+WORKDIR /app
+# Creates /app in the final image
+
+COPY --from=builder /usr/local/lib/python3.13/site-packages \
+                    /usr/local/lib/python3.13/site-packages
+# Copy ONLY installed dependencies from builder
+# --from=builder means:
+# - Source comes from the builder image filesystem
+# - NOT from local machine
+
+COPY --from=builder /app /app
+# Copy application source code from builder
+
+CMD ["python", "app.py"]
+# Runtime command
+

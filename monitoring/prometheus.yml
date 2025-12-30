@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: "todo-app"
+    static_configs:
+      - targets: ["todo:80"]
+
+      
+# What this means
+
+# scrape every 5 seconds
+
+# scrape service named todo
+
+# port 80
+
+# Docker DNS resolves todo

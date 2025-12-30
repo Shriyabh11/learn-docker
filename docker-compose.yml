@@ -1,0 +1,194 @@
+version: "3.9"
+# Compose file format version
+#
+# 3.9 is stable and works with:
+# - Docker Desktop
+# - Docker Engine 20+
+#
+# You almost never need to change this unless:
+# - You are targeting very old Docker
+# - You need very new features
+
+
+
+services:
+  web:
+    # SERVICE NAME
+    #
+    # "web" becomes:
+    # - the service identifier
+    # - the DNS hostname inside the Docker network
+    #
+    # Other containers could reach this service at:
+    #   http://web:8000
+    #
+    # You can rename this safely,
+    # BUT remember to update references in other services.
+    # -------------------------
+
+
+    image: app:combined
+    # -------------------------
+    # IMAGE TO RUN
+    #
+    # This must match:
+    #   docker build -t app:combined
+    #
+    # If you want Compose to build automatically instead:
+    #   replace `image:` with `build:`
+    #
+    # Example:
+    # build:
+    #   context: .
+    #   dockerfile: docker/Dockerfile.combined
+    #
+    # image + build can also be used together
+    # to tag the built image.
+    # -------------------------
+
+
+    container_name: python-counter
+    # -------------------------
+    # FIXED CONTAINER NAME
+    #
+    # Pros:
+    # - Easy docker logs python-counter
+    # - Easy docker exec
+    #
+    # Cons:
+    # - You CANNOT scale this service
+    #   (container names must be unique)
+    #
+    # If want scaling later:
+    #remove this line
+    # -------------------------
+
+
+    ports:
+      - "8000:8000"
+    # -------------------------
+    # PORT MAPPING
+    #
+    # FORMAT:
+    #   host_port : container_port
+    #
+    # Left side  → your machine (browser, curl)
+    # Right side → container process
+    #
+    # You can change ONLY the left side safely:
+    #   "9000:8000" → http://localhost:9000
+    #
+    # NEVER change the container port
+    # unless your app listens on a new port.
+    # -------------------------
+
+
+    volumes:
+      - app-data:/data
+    # -------------------------
+    # VOLUME MOUNT
+    #
+    # app-data → Docker-managed volume
+    # /data    → path INSIDE container
+    #
+    # Your app writes:
+    #   /data/count.txt
+    #
+    # You can change:
+    # - volume name (left side)
+    # - container path (right side)
+    #
+    # BUT:
+    # - path must match your app code
+    #
+    # For development, you could switch to bind mount:
+    #   - ./local-data:/data
+    # -------------------------
+
+
+    restart: unless-stopped
+    # -------------------------
+    # RESTART POLICY
+    #
+    # Options:
+    # - no              (default)
+    # - always          (restarts even if you stop it)
+    # - unless-stopped  (best for prod)
+    # - on-failure      (restart only if app crashes)
+    #
+    # unless-stopped is ideal for:
+    # - dev servers
+    # - small prod setups
+    #
+    # Kubernetes replaces this concept later.
+    # -------------------------
+
+
+    networks:
+      - app-net
+    # -------------------------
+    # NETWORK ATTACHMENT
+    #
+    # Containers on the same network:
+    # - can talk via service name
+    # - are isolated from host network
+    #
+    # Example future use:
+    # - web → db
+    # - web → redis
+    # -------------------------
+
+
+    environment:
+      - APP_ENV=development
+    # -------------------------
+    # ENVIRONMENT VARIABLES
+    #
+    # Accessible in Python via:
+    #   os.environ["APP_ENV"]
+    #
+    # Use this to:
+    # - toggle debug mode
+    # - switch configs
+    #
+    # NEVER hardcode secrets here.
+    # -------------------------
+
+
+# -------------------------
+# NETWORK DEFINITIONS
+# -------------------------
+networks:
+  app-net:
+    driver: bridge
+    # -------------------------
+    # bridge = default Docker network
+    #
+    # Good for:
+    # - local dev
+    # - Compose apps
+    #
+    # Docker automatically provides:
+    # - DNS
+    # - IP routing
+    # -------------------------
+
+
+# -------------------------
+# VOLUME DEFINITIONS
+# -------------------------
+volumes:
+  app-data:
+    # -------------------------
+    # Named volume
+    #
+    # Lives independently of containers
+    #
+    # Data survives:
+    # - container deletion
+    # - image rebuilds
+    # - docker-compose down
+    #
+    # Deleted ONLY by:
+    #   docker volume rm app-data
+    # -------------------------

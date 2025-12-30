@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  todo-web:
+    image: diamol/ch06-todo-list:v2
+    ports:
+      - "8089:80"
+
+    # NO database config here
+    # NO volumes
+    # NO db service
+
+    # App will fall back to defaults

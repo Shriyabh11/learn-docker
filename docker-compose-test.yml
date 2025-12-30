@@ -1,0 +1,26 @@
+services:
+  todo-web:
+    image: diamol/ch06-todo-list   # latest
+    ports:
+      - "8080:80"
+
+    environment:
+      - Database:Provider=Postgres
+      - Database:ConnectionString=Host=todo-db;Database=todo;Username=postgres;Password=postgres
+
+    depends_on:
+      - todo-db
+
+  todo-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=todo
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+    volumes:
+      - todo-db-data:/var/lib/postgresql/data/pgdata
+
+volumes:
+  todo-db-data:
